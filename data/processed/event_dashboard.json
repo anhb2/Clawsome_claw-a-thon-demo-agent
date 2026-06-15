@@ -1,0 +1,338 @@
+{
+  "funnel": {
+    "meta": {
+      "generated_at": "2026-06-15T18:17:44",
+      "source_file": "event_raw.csv",
+      "total_events": 3000,
+      "total_sessions": 299,
+      "overall_conversion_pct": 27.8,
+      "avg_session_duration_s": 454,
+      "biggest_dropoff_step": 4,
+      "biggest_dropoff_screen": "Chọn Ghế",
+      "biggest_dropoff_pct": 27.2,
+      "event_type_counts": {
+        "view": 1127,
+        "click": 1797,
+        "submit": 76
+      }
+    },
+    "funnel_steps": [
+      {
+        "step": 1,
+        "screen_id": "1020",
+        "screen_name": "Movie Home",
+        "sessions_reached": 299,
+        "sessions_dropped": 0,
+        "reach_pct": 100.0,
+        "step_conversion_pct": 100.0,
+        "dropoff_pct": 0.0,
+        "avg_duration_ms": 22422,
+        "breakdown": {
+          "by_platform": {
+            "Android": 168,
+            "iOS": 131
+          },
+          "by_network": {
+            "Wifi": 148,
+            "4G": 97,
+            "5G": 42,
+            "3G": 12
+          },
+          "by_segment": {
+            "VIP": 35,
+            "Regular": 111,
+            "Member": 90,
+            "New": 63
+          }
+        }
+      },
+      {
+        "step": 2,
+        "screen_id": "1021",
+        "screen_name": "Phim Detail",
+        "sessions_reached": 226,
+        "sessions_dropped": 73,
+        "reach_pct": 75.6,
+        "step_conversion_pct": 75.6,
+        "dropoff_pct": 24.4,
+        "avg_duration_ms": 22033,
+        "breakdown": {
+          "by_platform": {
+            "Android": 130,
+            "iOS": 96
+          },
+          "by_network": {
+            "Wifi": 110,
+            "4G": 69,
+            "5G": 39,
+            "3G": 8
+          },
+          "by_segment": {
+            "VIP": 25,
+            "Regular": 84,
+            "Member": 65,
+            "New": 52
+          }
+        }
+      },
+      {
+        "step": 3,
+        "screen_id": "1022",
+        "screen_name": "Chọn Suất Chiếu",
+        "sessions_reached": 195,
+        "sessions_dropped": 31,
+        "reach_pct": 65.2,
+        "step_conversion_pct": 86.3,
+        "dropoff_pct": 13.7,
+        "avg_duration_ms": 23208,
+        "breakdown": {
+          "by_platform": {
+            "Android": 114,
+            "iOS": 81
+          },
+          "by_network": {
+            "Wifi": 96,
+            "4G": 60,
+            "5G": 32,
+            "3G": 7
+          },
+          "by_segment": {
+            "VIP": 23,
+            "Regular": 72,
+            "Member": 55,
+            "New": 45
+          }
+        }
+      },
+      {
+        "step": 4,
+        "screen_id": "1023",
+        "screen_name": "Chọn Ghế",
+        "sessions_reached": 142,
+        "sessions_dropped": 53,
+        "reach_pct": 47.5,
+        "step_conversion_pct": 72.8,
+        "dropoff_pct": 27.2,
+        "avg_duration_ms": 22487,
+        "breakdown": {
+          "by_platform": {
+            "Android": 83,
+            "iOS": 59
+          },
+          "by_network": {
+            "Wifi": 73,
+            "4G": 39,
+            "5G": 25,
+            "3G": 5
+          },
+          "by_segment": {
+            "VIP": 12,
+            "Regular": 55,
+            "Member": 41,
+            "New": 34
+          }
+        }
+      },
+      {
+        "step": 5,
+        "screen_id": "1024",
+        "screen_name": "Chọn Bắp Nước",
+        "sessions_reached": 121,
+        "sessions_dropped": 21,
+        "reach_pct": 40.5,
+        "step_conversion_pct": 85.2,
+        "dropoff_pct": 14.8,
+        "avg_duration_ms": 23637,
+        "breakdown": {
+          "by_platform": {
+            "Android": 74,
+            "iOS": 47
+          },
+          "by_network": {
+            "Wifi": 64,
+            "4G": 31,
+            "5G": 22,
+            "3G": 4
+          },
+          "by_segment": {
+            "VIP": 12,
+            "Regular": 50,
+            "Member": 32,
+            "New": 27
+          }
+        }
+      },
+      {
+        "step": 6,
+        "screen_id": "1025",
+        "screen_name": "Confirm",
+        "sessions_reached": 97,
+        "sessions_dropped": 24,
+        "reach_pct": 32.4,
+        "step_conversion_pct": 80.2,
+        "dropoff_pct": 19.8,
+        "avg_duration_ms": 22607,
+        "breakdown": {
+          "by_platform": {
+            "Android": 58,
+            "iOS": 39
+          },
+          "by_network": {
+            "Wifi": 49,
+            "4G": 27,
+            "5G": 17,
+            "3G": 4
+          },
+          "by_segment": {
+            "VIP": 8,
+            "Regular": 40,
+            "Member": 25,
+            "New": 24
+          }
+        }
+      },
+      {
+        "step": 7,
+        "screen_id": "1026",
+        "screen_name": "Thanh Toán",
+        "sessions_reached": 83,
+        "sessions_dropped": 14,
+        "reach_pct": 27.8,
+        "step_conversion_pct": 85.6,
+        "dropoff_pct": 14.4,
+        "avg_duration_ms": 21776,
+        "breakdown": {
+          "by_platform": {
+            "Android": 50,
+            "iOS": 33
+          },
+          "by_network": {
+            "Wifi": 41,
+            "4G": 24,
+            "5G": 15,
+            "3G": 3
+          },
+          "by_segment": {
+            "VIP": 8,
+            "Regular": 34,
+            "Member": 21,
+            "New": 20
+          }
+        }
+      }
+    ],
+    "sessions_by_day": [
+      {
+        "day": "T2",
+        "sessions": 43,
+        "is_weekend": false
+      },
+      {
+        "day": "T3",
+        "sessions": 29,
+        "is_weekend": false
+      },
+      {
+        "day": "T4",
+        "sessions": 42,
+        "is_weekend": false
+      },
+      {
+        "day": "T5",
+        "sessions": 46,
+        "is_weekend": false
+      },
+      {
+        "day": "T6",
+        "sessions": 43,
+        "is_weekend": false
+      },
+      {
+        "day": "T7",
+        "sessions": 56,
+        "is_weekend": true
+      },
+      {
+        "day": "CN",
+        "sessions": 40,
+        "is_weekend": true
+      }
+    ],
+    "platform_split": [
+      {
+        "platform": "Android",
+        "sessions": 168,
+        "pct": 56.2
+      },
+      {
+        "platform": "iOS",
+        "sessions": 131,
+        "pct": 43.8
+      }
+    ],
+    "network_split": [
+      {
+        "network": "Wifi",
+        "sessions": 148,
+        "pct": 49.5
+      },
+      {
+        "network": "4G",
+        "sessions": 97,
+        "pct": 32.4
+      },
+      {
+        "network": "5G",
+        "sessions": 42,
+        "pct": 14.0
+      },
+      {
+        "network": "3G",
+        "sessions": 12,
+        "pct": 4.0
+      }
+    ],
+    "top_dropoff_events": [
+      {
+        "event_name": "load màn hình Movie home",
+        "count": 30
+      },
+      {
+        "event_name": "click xem chi tiết phim",
+        "count": 21
+      },
+      {
+        "event_name": "chọn ngày trên màn hình suất chiếu",
+        "count": 16
+      },
+      {
+        "event_name": "click đặt vé phim trên phim detail",
+        "count": 16
+      },
+      {
+        "event_name": "click chọn phim",
+        "count": 16
+      },
+      {
+        "event_name": "Load màn hình chọn suất chiếu",
+        "count": 14
+      },
+      {
+        "event_name": "bấm tiếp tục màn hình chọn ghế",
+        "count": 14
+      },
+      {
+        "event_name": "Chọn rạp phim trên màn hình suất chiếu",
+        "count": 13
+      },
+      {
+        "event_name": "load màn hình phim detail",
+        "count": 11
+      },
+      {
+        "event_name": "load màn hình confirm",
+        "count": 10
+      }
+    ]
+  }
+}

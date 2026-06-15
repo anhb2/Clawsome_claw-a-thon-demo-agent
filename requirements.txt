@@ -1,2 +1,6 @@
 greennode-agentbase
 python-dotenv
+openai
+httpx
+pandas
+python-multipart

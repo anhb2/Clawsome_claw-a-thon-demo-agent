@@ -1,0 +1,10 @@
+# User uploads overwrite sample files at runtime
+raw/*
+!raw/.gitkeep
+!raw/payment_raw.csv
+!raw/event_raw.csv
+
+processed/*
+!processed/.gitkeep
+!processed/payment_dashboard.json
+!processed/event_dashboard.json

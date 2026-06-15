@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funnel Dashboard — ZaloPay Cinema</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f7f7f5;
+    --surface:   #ffffff;
+    --border:    rgba(0,0,0,0.08);
+    --border-md: rgba(0,0,0,0.14);
+    --text-1:    #1a1a18;
+    --text-2:    #5c5c58;
+    --text-3:    #9c9a92;
+    --teal-1:    #e1f5ee;
+    --teal-4:    #1d9e75;
+    --teal-6:    #0f6e56;
+    --teal-8:    #085041;
+    --red-1:     #fcebeb;
+    --red-4:     #e24b4a;
+    --red-6:     #a32d2d;
+    --amber-1:   #faeeda;
+    --amber-4:   #ef9f27;
+    --amber-6:   #854f0b;
+    --purple-1:  #eeedfe;
+    --purple-4:  #7f77dd;
+    --purple-6:  #534ab7;
+    --blue-4:    #378add;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 28px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-logo {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--teal-6);
+  }
+  .topbar-sep { color: var(--border-md); }
+  .topbar-title { font-size: 13px; color: var(--text-2); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+  /* ── UPLOAD ZONE ── */
+  #upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 52px);
+    gap: 16px;
+    padding: 40px;
+  }
+  .upload-card {
+    background: var(--surface);
+    border: 1.5px dashed var(--border-md);
+    border-radius: var(--radius-lg);
+    padding: 48px 64px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    max-width: 480px;
+    width: 100%;
+  }
+  .upload-card:hover, .upload-card.drag-over {
+    border-color: var(--teal-4);
+    background: var(--teal-1);
+  }
+  .upload-icon {
+    width: 40px; height: 40px;
+    margin: 0 auto 14px;
+    background: var(--teal-1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .upload-icon svg { width: 22px; height: 22px; stroke: var(--teal-6); }
+  .upload-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+  .upload-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--teal-4); color: white;
+    border: none; border-radius: var(--radius-sm);
+    padding: 8px 18px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .upload-btn:hover { background: var(--teal-6); }
+  #file-input { display: none; }
+  .upload-hint { font-size: 12px; color: var(--text-3); margin-top: 10px; }
+
+  /* ── MAIN DASHBOARD ── */
+  #dashboard { display: none; }
+  .dash-header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .dash-header-info h1 { font-size: 16px; font-weight: 600; }
+  .dash-header-info .meta { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .header-actions { margin-left: auto; display: flex; gap: 8px; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 0.5px solid var(--border-md); background: transparent;
+    border-radius: var(--radius-sm); padding: 6px 12px;
+    font-size: 12px; color: var(--text-2); cursor: pointer;
+    transition: background 0.12s;
+  }
+  .btn-ghost:hover { background: var(--bg); }
+  .btn-ghost svg { width: 14px; height: 14px; stroke: currentColor; }
+
+  .dash-content { padding: 24px 28px; max-width: 1280px; margin: 0 auto; }
+
+  /* ── METRIC CARDS ── */
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .metric-label {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .metric-label svg { width: 13px; height: 13px; stroke: var(--text-3); }
+  .metric-value { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 5px; }
+  .metric-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500;
+    padding: 2px 7px; border-radius: 99px;
+  }
+  .badge-warn { background: var(--red-1); color: var(--red-6); }
+  .badge-info { background: var(--teal-1); color: var(--teal-6); }
+  .badge-amber { background: var(--amber-1); color: var(--amber-6); }
+  .badge-purple { background: var(--purple-1); color: var(--purple-6); }
+
+  /* ── ALERT BANNER ── */
+  .alert-banner {
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+    border-left: 3px solid var(--red-4);
+    background: var(--red-1);
+  }
+  .alert-banner svg { width: 16px; height: 16px; stroke: var(--red-4); flex-shrink: 0; }
+  .alert-text { font-size: 13px; color: var(--red-6); }
+  .alert-text strong { font-weight: 600; }
+
+  /* ── SECTION HEADER ── */
+  .section-hd {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .section-hd h2 { font-size: 13px; font-weight: 600; }
+  .section-hd .sub { font-size: 12px; color: var(--text-3); }
+  .divider-line { flex: 1; height: 0.5px; background: var(--border); }
+
+  /* ── FUNNEL TABLE ── */
+  .funnel-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .funnel-table { width: 100%; border-collapse: collapse; }
+  .funnel-table thead tr {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .funnel-table th {
+    padding: 10px 14px;
+    font-size: 11px; font-weight: 500;
+    color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.05em; text-align: left;
+    white-space: nowrap;
+  }
+  .funnel-table th.right { text-align: right; }
+  .funnel-table tbody tr {
+    border-bottom: 0.5px solid var(--border);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+  .funnel-table tbody tr:last-child { border-bottom: none; }
+  .funnel-table tbody tr:hover { background: #f9f9f7; }
+  .funnel-table tbody tr.selected { background: var(--teal-1); }
+  .funnel-table td { padding: 12px 14px; font-size: 13px; vertical-align: middle; }
+  .funnel-table td.right { text-align: right; }
+
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    font-size: 11px; font-weight: 700;
+    background: var(--bg); color: var(--text-2);
+    border: 0.5px solid var(--border-md);
+    margin-right: 8px; flex-shrink: 0;
+  }
+  .step-badge.worst { background: var(--red-4); color: white; border-color: var(--red-4); }
+
+  .screen-name { font-weight: 500; }
+  .screen-id { font-size: 11px; color: var(--text-3); }
+
+  /* Funnel bar */
+  .bar-cell { min-width: 140px; }
+  .bar-track {
+    background: var(--bg);
+    border-radius: 3px;
+    height: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex; align-items: center; padding-left: 8px;
+    font-size: 11px; font-weight: 600;
+    color: var(--teal-8);
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-fill.worst-bar { background: linear-gradient(90deg, #fcd5d5, #f09595); color: var(--red-6); }
+
+  .conv-pill {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 12px; font-weight: 500;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .conv-good { background: var(--teal-1); color: var(--teal-6); }
+  .conv-warn { background: var(--amber-1); color: var(--amber-6); }
+  .conv-bad  { background: var(--red-1);  color: var(--red-6); }
+
+  .drop-pct { font-size: 12px; color: var(--text-3); }
+  .drop-pct.bad { color: var(--red-6); font-weight: 600; }
+
+  .dur-ms { font-size: 12px; color: var(--text-2); }
+
+  /* ── 2-COL LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .metric-row { grid-template-columns: 1fr 1fr; } }
+
+  /* ── BREAKDOWN PANEL ── */
+  .panel {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .panel-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .panel-sub { font-size: 12px; color: var(--text-3); margin-bottom: 16px; }
+  .panel-hint { font-size: 12px; color: var(--text-3); padding: 32px 0; text-align: center; }
+
+  .breakdown-tabs { display: flex; gap: 0; margin-bottom: 16px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .breakdown-tab {
+    flex: 1; text-align: center; padding: 6px 10px;
+    font-size: 12px; font-weight: 500; color: var(--text-2);
+    cursor: pointer; background: transparent; border: none;
+    transition: background 0.12s;
+  }
+  .breakdown-tab.active { background: var(--teal-4); color: white; }
+  .breakdown-tab:not(.active):hover { background: var(--bg); }
+
+  .breakdown-list { display: flex; flex-direction: column; gap: 10px; }
+  .breakdown-row { display: flex; align-items: center; gap: 10px; }
+  .breakdown-label { font-size: 12px; color: var(--text-2); width: 72px; flex-shrink: 0; }
+  .breakdown-track { flex: 1; background: var(--bg); border-radius: 3px; height: 16px; overflow: hidden; }
+  .breakdown-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+  .breakdown-count { font-size: 12px; font-weight: 500; width: 30px; text-align: right; color: var(--text-1); }
+
+  /* ── CONVERSION CHART PANEL ── */
+  .chart-panel {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <span class="topbar-logo">ZaloPay Cinema</span>
+  <span class="topbar-sep">/</span>
+  <span class="topbar-title">Funnel Dashboard</span>
+  <div class="topbar-right">
+    <button class="btn-ghost" id="btn-reload" style="display:none" onclick="resetDashboard()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.54"/></svg>
+      Đổi file
+    </button>
+  </div>
+</nav>
+
+<!-- UPLOAD -->
+<div id="upload-zone">
+  <div class="upload-card" id="drop-zone">
+    <div class="upload-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="upload-title">Upload funnel.json</div>
+    <div class="upload-sub">Kéo thả file vào đây hoặc nhấn để chọn</div>
+    <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Chọn file JSON
+    </button>
+    <div class="upload-hint">Chỉ nhận file funnel.json được tạo từ events_raw.csv</div>
+    <input type="file" id="file-input" accept=".json,application/json">
+  </div>
+
+  <div style="font-size:12px;color:var(--text-3)">— hoặc dùng data mẫu —</div>
+  <button class="btn-ghost" onclick="loadDemo()">Xem demo với dữ liệu mẫu</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-header">
+    <div class="dash-header-info">
+      <h1 id="hdr-title">Funnel chuyển đổi</h1>
+      <div class="meta" id="hdr-meta"></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-ghost" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        In báo cáo
+      </button>
+      <button class="btn-ghost" id="btn-reload-hdr" onclick="resetDashboard()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.54"/></svg>
+        Đổi file
+      </button>
+    </div>
+  </div>
+
+  <div class="dash-content">
+
+    <!-- METRIC CARDS -->
+    <div class="metric-row" id="metric-row"></div>
+
+    <!-- ALERT BANNER -->
+    <div class="alert-banner" id="alert-banner" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="alert-text" id="alert-text"></div>
+    </div>
+
+    <!-- FUNNEL TABLE -->
+    <div class="section-hd">
+      <h2>Phễu chuyển đổi 7 bước</h2>
+      <div class="sub">Nhấn vào một bước để xem breakdown chi tiết</div>
+      <div class="divider-line"></div>
+    </div>
+    <div class="funnel-card">
+      <table class="funnel-table">
+        <thead>
+          <tr>
+            <th>Màn hình</th>
+            <th class="bar-cell">Sessions đạt tới</th>
+            <th class="right">Reach %</th>
+            <th class="right">Conv. bước này</th>
+            <th class="right">Drop-off</th>
+            <th class="right">Avg. time</th>
+          </tr>
+        </thead>
+        <tbody id="funnel-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- CHART + BREAKDOWN -->
+    <div class="two-col">
+      <!-- Conversion line chart -->
+      <div class="chart-panel" style="margin-bottom:0">
+        <div class="panel-title">Tỉ lệ chuyển đổi từng bước</div>
+        <div class="panel-sub">Step conversion % (so với bước trước)</div>
+        <div class="chart-wrap">
+          <canvas id="conv-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Breakdown panel -->
+      <div class="panel">
+        <div class="panel-title" id="bd-title">Breakdown chi tiết</div>
+        <div class="panel-sub" id="bd-sub">Chọn một bước trong bảng để xem</div>
+        <div class="breakdown-tabs" id="bd-tabs" style="display:none">
+          <button class="breakdown-tab active" onclick="switchTab('platform',this)">Platform</button>
+          <button class="breakdown-tab" onclick="switchTab('network',this)">Mạng</button>
+          <button class="breakdown-tab" onclick="switchTab('segment',this)">Segment</button>
+        </div>
+        <div id="bd-content">
+          <div class="panel-hint">← Nhấn vào bước bất kỳ</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let DATA = null;
+let selectedStep = null;
+let activeTab = 'platform';
+let convChart = null;
+
+const COLORS_PLATFORM = { Android: '#1d9e75', iOS: '#378add' };
+const COLORS_NETWORK  = { Wifi: '#7f77dd', '4G': '#1d9e75', '5G': '#ef9f27', '3G': '#e24b4a' };
+const COLORS_SEGMENT  = { VIP: '#7f77dd', Regular: '#1d9e75', New: '#378add', Member: '#ef9f27' };
+const TEAL_STOPS = ['#e1f5ee','#9fe1cb','#5dcaa5','#1d9e75','#0f6e56','#085041','#04342c'];
+
+/* ── FILE UPLOAD ── */
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) readFile(file);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const json = JSON.parse(e.target.result);
+      if (!json.funnel_steps || !json.meta) throw new Error('Không đúng định dạng funnel.json');
+      render(json);
+    } catch(err) {
+      alert('Lỗi đọc file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function loadDemo() {
+  const demo = {"meta":{"generated_at":"2026-06-15T07:48:58","source_file":"events_raw.csv","total_sessions":300,"total_events":4790,"overall_conversion_pct":43.3,"biggest_dropoff_step":4,"biggest_dropoff_screen":"Chon Ghe","biggest_dropoff_pct":22.2},"funnel_steps":[{"step":1,"screen_id":"1020","screen_name":"Movie Home","sessions_reached":300,"sessions_dropped":0,"reach_pct":100.0,"step_conversion_pct":100.0,"dropoff_pct":0.0,"avg_duration_ms":22520,"breakdown":{"by_platform":{"Android":151,"iOS":149},"by_network":{"5G":74,"3G":63,"Wifi":78,"4G":85},"by_segment":{"VIP":88,"New":81,"Regular":59,"Member":72}}},{"step":2,"screen_id":"1021","screen_name":"Phim Detail","sessions_reached":290,"sessions_dropped":10,"reach_pct":96.7,"step_conversion_pct":96.7,"dropoff_pct":3.3,"avg_duration_ms":22959,"breakdown":{"by_platform":{"Android":146,"iOS":144},"by_network":{"5G":70,"3G":61,"Wifi":74,"4G":85},"by_segment":{"VIP":87,"New":77,"Regular":56,"Member":70}}},{"step":3,"screen_id":"1022","screen_name":"Chon Suat Chieu","sessions_reached":252,"sessions_dropped":38,"reach_pct":84.0,"step_conversion_pct":86.9,"dropoff_pct":13.1,"avg_duration_ms":22225,"breakdown":{"by_platform":{"iOS":130,"Android":122},"by_network":{"3G":52,"5G":58,"4G":76,"Wifi":66},"by_segment":{"VIP":75,"Regular":48,"New":70,"Member":59}}},{"step":4,"screen_id":"1023","screen_name":"Chon Ghe","sessions_reached":196,"sessions_dropped":56,"reach_pct":65.3,"step_conversion_pct":77.8,"dropoff_pct":22.2,"avg_duration_ms":23695,"breakdown":{"by_platform":{"iOS":100,"Android":96},"by_network":{"3G":42,"4G":59,"Wifi":52,"5G":43},"by_segment":{"VIP":59,"New":54,"Member":48,"Regular":35}}},{"step":5,"screen_id":"1024","screen_name":"Chon Bap Nuoc","sessions_reached":154,"sessions_dropped":42,"reach_pct":51.3,"step_conversion_pct":78.6,"dropoff_pct":21.4,"avg_duration_ms":22074,"breakdown":{"by_platform":{"iOS":81,"Android":73},"by_network":{"3G":36,"Wifi":38,"5G":32,"4G":48},"by_segment":{"VIP":50,"Member":38,"Regular":27,"New":39}}},{"step":6,"screen_id":"1025","screen_name":"Confirm","sessions_reached":138,"sessions_dropped":16,"reach_pct":46.0,"step_conversion_pct":89.6,"dropoff_pct":10.4,"avg_duration_ms":22860,"breakdown":{"by_platform":{"iOS":74,"Android":64},"by_network":{"3G":32,"Wifi":34,"5G":31,"4G":41},"by_segment":{"VIP":41,"Member":37,"Regular":26,"New":34}}},{"step":7,"screen_id":"1026","screen_name":"Thanh Toan","sessions_reached":130,"sessions_dropped":8,"reach_pct":43.3,"step_conversion_pct":94.2,"dropoff_pct":5.8,"avg_duration_ms":21628,"breakdown":{"by_platform":{"iOS":70,"Android":60},"by_network":{"3G":31,"Wifi":32,"5G":29,"4G":38},"by_segment":{"VIP":39,"Member":36,"Regular":25,"New":30}}}]};
+  render(demo);
+}
+
+/* ── RENDER ── */
+function render(data) {
+  DATA = data;
+  document.getElementById('upload-zone').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  const m = data.meta;
+  const dt = new Date(m.generated_at);
+  const fmt = dt.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  document.getElementById('hdr-title').textContent = 'Funnel chuyển đổi — ' + m.source_file;
+  document.getElementById('hdr-meta').textContent = `Tạo lúc ${fmt} · ${m.total_sessions.toLocaleString()} sessions · ${m.total_events.toLocaleString()} events`;
+
+  renderMetrics(data);
+  renderAlert(data);
+  renderTable(data);
+  renderChart(data);
+}
+
+function renderMetrics(data) {
+  const m = data.meta;
+  const steps = data.funnel_steps;
+  const s1 = steps[0], s4 = steps.find(s => s.step === m.biggest_dropoff_step);
+  const avgDur = Math.round(steps.reduce((a,s) => a + s.avg_duration_ms, 0) / steps.length);
+
+  const cards = [
+    {
+      label: 'Tổng sessions',
+      icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      value: m.total_sessions.toLocaleString(),
+      badge: `${m.total_events.toLocaleString()} events`, badgeClass: 'badge-info'
+    },
+    {
+      label: 'Overall conversion',
+      icon: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+      value: m.overall_conversion_pct + '%',
+      badge: 'Bước 1 → 7', badgeClass: 'badge-purple'
+    },
+    {
+      label: 'Biggest drop-off',
+      icon: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/>',
+      value: m.biggest_dropoff_pct + '%',
+      badge: `Bước ${m.biggest_dropoff_step}: ${m.biggest_dropoff_screen}`, badgeClass: 'badge-warn'
+    },
+    {
+      label: 'Avg. time on screen',
+      icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+      value: (avgDur / 1000).toFixed(1) + 's',
+      badge: 'Trung bình 7 bước', badgeClass: 'badge-amber'
+    },
+  ];
+
+  document.getElementById('metric-row').innerHTML = cards.map(c => `
+    <div class="metric-card">
+      <div class="metric-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${c.icon}</svg>
+        ${c.label}
+      </div>
+      <div class="metric-value">${c.value}</div>
+      <span class="metric-badge ${c.badgeClass}">${c.badge}</span>
+    </div>
+  `).join('');
+}
+
+function renderAlert(data) {
+  const m = data.meta;
+  const banner = document.getElementById('alert-banner');
+  const s = data.funnel_steps.find(s => s.step === m.biggest_dropoff_step);
+  banner.style.display = 'flex';
+  document.getElementById('alert-text').innerHTML =
+    `<strong>⚠ Cần chú ý:</strong> Bước <strong>${m.biggest_dropoff_step} — ${m.biggest_dropoff_screen}</strong> có drop-off cao nhất: <strong>${m.biggest_dropoff_pct}%</strong> (${s.sessions_dropped} sessions rớt). Đây là nút thắt lớn nhất trong funnel hiện tại.`;
+}
+
+function convClass(pct) {
+  if (pct >= 90) return 'conv-good';
+  if (pct >= 75) return 'conv-warn';
+  return 'conv-bad';
+}
+
+function formatDur(ms) {
+  if (ms >= 60000) return (ms/60000).toFixed(1) + ' phút';
+  return (ms/1000).toFixed(1) + 's';
+}
+
+function renderTable(data) {
+  const worst = data.meta.biggest_dropoff_step;
+  const total = data.funnel_steps[0].sessions_reached;
+  const tbody = document.getElementById('funnel-tbody');
+
+  tbody.innerHTML = data.funnel_steps.map(s => {
+    const isWorst = s.step === worst;
+    const barColor = isWorst
+      ? 'worst-bar'
+      : `style="background:${TEAL_STOPS[Math.min(s.step - 1, 6)]}; width:${s.reach_pct}%"`;
+    const barInner = isWorst
+      ? `<div class="bar-fill worst-bar" style="width:${s.reach_pct}%">${s.sessions_reached}</div>`
+      : `<div class="bar-fill" style="background:${TEAL_STOPS[Math.min(s.step-1,6)]};width:${s.reach_pct}%">${s.sessions_reached}</div>`;
+
+    const badgeNum = isWorst
+      ? `<span class="step-badge worst">${s.step}</span>`
+      : `<span class="step-badge">${s.step}</span>`;
+
+    const dropHtml = s.step === 1 ? '<span class="drop-pct">—</span>'
+      : `<span class="drop-pct ${s.dropoff_pct >= 20 ? 'bad' : ''}">−${s.dropoff_pct}%</span>`;
+
+    const convHtml = s.step === 1 ? '<span class="conv-pill conv-good">100%</span>'
+      : `<span class="conv-pill ${convClass(s.step_conversion_pct)}">${s.step_conversion_pct}%</span>`;
+
+    return `<tr onclick="selectStep(${s.step})" data-step="${s.step}">
+      <td><div style="display:flex;align-items:center">${badgeNum}<div><div class="screen-name">${s.screen_name}</div><div class="screen-id">Screen ${s.screen_id}</div></div></div></td>
+      <td class="bar-cell"><div class="bar-track">${barInner}</div></td>
+      <td class="right"><strong>${s.reach_pct}%</strong></td>
+      <td class="right">${convHtml}</td>
+      <td class="right">${dropHtml}</td>
+      <td class="right"><span class="dur-ms">${formatDur(s.avg_duration_ms)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChart(data) {
+  const ctx = document.getElementById('conv-chart').getContext('2d');
+  const labels = data.funnel_steps.map(s => `B${s.step}`);
+  const convData = data.funnel_steps.map(s => s.step_conversion_pct);
+  const bgColors = data.funnel_steps.map(s =>
+    s.step === data.meta.biggest_dropoff_step ? '#f09595' : '#9fe1cb'
+  );
+
+  if (convChart) convChart.destroy();
+  convChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Step conversion %',
+        data: convData,
+        backgroundColor: bgColors,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => {
+              const s = data.funnel_steps[items[0].dataIndex];
+              return `Bước ${s.step}: ${s.screen_name}`;
+            },
+            label: (item) => {
+              const s = data.funnel_steps[item.dataIndex];
+              return [
+                ` Conv. bước này: ${s.step_conversion_pct}%`,
+                ` Reach tổng: ${s.reach_pct}%`,
+                ` Drop-off: ${s.dropoff_pct}%`,
+              ];
+            }
+          },
+          backgroundColor: '#1a1a18',
+          titleColor: '#fff',
+          bodyColor: '#c2c0b6',
+          padding: 10,
+          cornerRadius: 8,
+        }
+      },
+      scales: {
+        y: {
+          min: 0, max: 105,
+          ticks: { callback: v => v + '%', font: { size: 11 }, color: '#9c9a92' },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          border: { display: false }
+        },
+        x: {
+          ticks: { font: { size: 11 }, color: '#5c5c58' },
+          grid: { display: false },
+          border: { display: false }
+        }
+      }
+    }
+  });
+}
+
+/* ── STEP SELECTION & BREAKDOWN ── */
+function selectStep(step) {
+  selectedStep = step;
+  document.querySelectorAll('.funnel-table tbody tr').forEach(tr => {
+    tr.classList.toggle('selected', parseInt(tr.dataset.step) === step);
+  });
+  const s = DATA.funnel_steps.find(x => x.step === step);
+  document.getElementById('bd-title').textContent = `Bước ${step}: ${s.screen_name}`;
+  document.getElementById('bd-sub').textContent = `${s.sessions_reached} sessions đạt tới bước này`;
+  document.getElementById('bd-tabs').style.display = 'flex';
+  renderBreakdown(s, activeTab);
+}
+
+function switchTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.breakdown-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (selectedStep) {
+    const s = DATA.funnel_steps.find(x => x.step === selectedStep);
+    renderBreakdown(s, tab);
+  }
+}
+
+function renderBreakdown(step, tab) {
+  const keyMap = { platform: 'by_platform', network: 'by_network', segment: 'by_segment' };
+  const colorMap = { platform: COLORS_PLATFORM, network: COLORS_NETWORK, segment: COLORS_SEGMENT };
+  const data = step.breakdown[keyMap[tab]];
+  const colors = colorMap[tab];
+  const total = Object.values(data).reduce((a, v) => a + v, 0);
+  const defaultColor = '#9fe1cb';
+
+  const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  document.getElementById('bd-content').innerHTML = `
+    <div class="breakdown-list">
+      ${sorted.map(([key, val]) => {
+        const pct = total > 0 ? Math.round(val / total * 100) : 0;
+        const color = colors[key] || defaultColor;
+        return `<div class="breakdown-row">
+          <div class="breakdown-label">${key}</div>
+          <div class="breakdown-track">
+            <div class="breakdown-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <div class="breakdown-count">${val}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-3)">Tổng: ${total} sessions · nhấn tab để đổi chiều phân tích</div>
+  `;
+}
+
+function resetDashboard() {
+  DATA = null; selectedStep = null; activeTab = 'platform';
+  if (convChart) { convChart.destroy(); convChart = null; }
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'flex';
+  document.getElementById('file-input').value = '';
+}
+</script>
+</body>
+</html>

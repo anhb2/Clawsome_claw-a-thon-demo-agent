@@ -79,8 +79,34 @@ When you need conversation history or long-term memory, use `/agentbase-memory` 
 
 ## Project Structure
 
-- `main.py` - Agent entrypoint with handler and health check
-- `Dockerfile` - Container image definition
-- `requirements.txt` - Python dependencies
-- `.greennode.json` - AgentBase configuration
-- `.env.example` - Environment variable template
+```
+main.py                          # Agent entrypoint
+app/
+  server.py                      # Routes: dashboard, /api/*, /invocations
+  config/llm.py                  # LLM env validation
+  data/
+    paths.py                     # data/raw, data/processed paths
+    service.py                   # Upload CSV, run parsers, load JSON
+  parsers/
+    payment_parser.py            # payment_raw.csv → payment_dashboard.json
+    event_parser.py              # event_raw.csv → event_dashboard.json
+  handlers/                      # API request handlers
+  services/                      # LLM chat, legacy CSV helpers
+  web/
+    routes.py                    # Serves dashboard HTML
+    static/dashboard.html        # 5-tab analytics UI
+data/
+  raw/                           # Sample + uploaded CSVs
+  processed/                     # Parser output JSON
+```
+
+### Run parsers manually
+
+```bash
+python -m app.parsers.payment_parser
+python -m app.parsers.event_parser
+```
+
+### Dashboard
+
+Open `http://127.0.0.1:8080/` after `python main.py`. Upload CSVs via UI or place them in `data/raw/`.
