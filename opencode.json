@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "MAAS-chat/qwen/qwen3-5-27b",
+  "provider": {
+    "MAAS-chat": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MAAS chat",
+      "options": {
+        "baseURL": "https://maas-llm-aiplatform-hcm.api.vngcloud.vn/v1",
+        "apiKey": "{env:MAAS_API_KEY}"
+      },
+      "models": {
+        "qwen/qwen3-5-27b": {
+          "name": "qwen/qwen3-5-27b"
+        }
+      }
+    }
+  }
+}
