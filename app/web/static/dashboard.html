@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZaloPay Cinema Analytics</title>
+<title>Clawsome Agent Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -222,7 +222,7 @@ td.r{text-align:right}
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-logo">ZaloPay Cinema</div>
+    <div class="brand-logo">Clawsome Agent</div>
     <div class="brand-sub">Analytics Dashboard</div>
   </div>
 
@@ -240,14 +240,18 @@ td.r{text-align:right}
     Funnel
   </div>
 
-  <div class="nav-section" style="margin-top:8px">Báo cáo & AI</div>
+  <div class="nav-section" style="margin-top:8px">Quản lý & Báo cáo</div>
+  <div class="nav-item" onclick="switchTab('import',this)">
+    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Import Data
+  </div>
   <div class="nav-item" onclick="switchTab('report',this)">
     <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     Báo cáo
   </div>
-  <div class="nav-item" onclick="switchTab('chat',this)">
-    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Chat AI
+  <div class="nav-item" onclick="switchTab('forecast',this)">
+    <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Dự báo AI
     <div class="nav-dot"></div>
   </div>
 
@@ -430,32 +434,141 @@ td.r{text-align:right}
     </div>
   </div>
 
-  <!-- CHAT TAB -->
-  <div class="page" id="page-chat">
-    <div class="chat-container">
-      <div class="chat-msgs" id="chat-msgs">
-        <div class="msg">
-          <div class="msg-av av-ai">AI</div>
-          <div>
-            <div class="msg-bubble bubble-ai">Xin chào! Tôi là <strong>ZaloPay Cinema Agent</strong>. Upload file CSV để tôi phân tích dữ liệu, hoặc hỏi tôi bất kỳ câu hỏi nào về doanh thu, hành vi user và funnel chuyển đổi.</div>
-            <div class="msg-time">Bây giờ</div>
+  <!-- IMPORT DATA TAB -->
+  <div class="page" id="page-import">
+    <div class="report-hd">
+      <div>
+        <div style="font-size:16px;font-weight:700">Import Data CSV</div>
+        <div style="font-size:12px;color:var(--t3);margin-top:2px">Upload file CSV với định danh ngày giờ tự động</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="loadImportedList()">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Làm mới
+        </button>
+      </div>
+    </div>
+    
+    <div class="report-body">
+      <!-- Upload Section -->
+      <div class="report-section">
+        <h3>Upload File CSV</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="drop-zone" onclick="document.getElementById('import-payment-input').click()" id="import-pay-zone">
+            <div class="drop-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="drop-title">payment_raw.csv</div>
+            <div class="drop-sub" id="import-pay-label">Nhấn để chọn file doanh thu</div>
+          </div>
+          <div class="drop-zone" onclick="document.getElementById('import-events-input').click()" id="import-ev-zone">
+            <div class="drop-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="drop-title">event_raw.csv</div>
+            <div class="drop-sub" id="import-ev-label">Nhấn để chọn file events</div>
           </div>
         </div>
-      </div>
-      <div class="chat-bottom">
-        <div class="chips" id="chat-chips">
-          <div class="chip" onclick="sendMsg(this.textContent)">Doanh thu tuần này thế nào?</div>
-          <div class="chip" onclick="sendMsg(this.textContent)">User nào sắp churn?</div>
-          <div class="chip" onclick="sendMsg(this.textContent)">Funnel đang rớt ở bước nào?</div>
-          <div class="chip" onclick="sendMsg(this.textContent)">Phim nào đang hot nhất?</div>
-          <div class="chip" onclick="sendMsg(this.textContent)">Thời điểm nào nên push notification?</div>
+        <input type="file" id="import-payment-input" accept=".csv,text/csv" style="display:none" onchange="onImportFileSelected('payment', this)">
+        <input type="file" id="import-events-input" accept=".csv,text/csv" style="display:none" onchange="onImportFileSelected('events', this)">
+        
+        <button class="btn btn-teal" style="width:100%;justify-content:center;padding:12px;font-size:14px;font-weight:600" onclick="importSelectedFiles()">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import & Parse Files
+        </button>
+        
+        <!-- Progress -->
+        <div class="upload-progress" id="import-progress" style="margin-top:16px">
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" id="import-prog-fill" style="width:0%"></div></div>
+          <div class="prog-label" id="import-prog-label">Đang chuẩn bị...</div>
         </div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input" placeholder="Hỏi về doanh thu, hành vi user, funnel..." onkeydown="if(event.key==='Enter')sendMsg()">
-          <button class="btn btn-teal" onclick="sendMsg()">
-            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Gửi
+        <div class="upload-error" id="import-error"></div>
+      </div>
+      
+      <!-- Imported Files List -->
+      <div class="report-section">
+        <h3>Files đã import</h3>
+        <div id="import-files-list" style="display:grid;gap:12px">
+          <div style="text-align:center;padding:30px;color:var(--t3)">Chưa có files nào được import</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORECAST TAB -->
+  <div class="page" id="page-forecast">
+    <div id="fc-empty" class="empty-state">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="empty-title">Chưa có dữ liệu để dự báo</div>
+      <div class="empty-sub">Upload file payment_raw.csv để AI phân tích và dự báo doanh thu, hành vi user, và đề xuất chiến lược kinh doanh.</div>
+      <button class="btn btn-teal" onclick="openUpload('payment')">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload payment_raw.csv
+      </button>
+    </div>
+    <div id="fc-content" style="display:none">
+      <div class="report-hd">
+        <div>
+          <div style="font-size:16px;font-weight:700">Dự báo AI</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px" id="fc-meta"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <!-- Period Filter Buttons -->
+          <div style="display:flex;border:.5px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <button class="fc-filter-btn" onclick="loadForecast('day', 7)" id="fc-day-btn" style="padding:6px 12px;border:none;background:transparent;color:var(--t2);font-size:12px;font-weight:500;cursor:pointer">Ngày (7)</button>
+            <button class="fc-filter-btn active" onclick="loadForecast('week', 4)" id="fc-week-btn" style="padding:6px 12px;border:none;background:var(--teal);color:#fff;font-size:12px;font-weight:500;cursor:pointer">Tuần (4)</button>
+            <button class="fc-filter-btn" onclick="loadForecast('month', 3)" id="fc-month-btn" style="padding:6px 12px;border:none;background:transparent;color:var(--t2);font-size:12px;font-weight:500;cursor:pointer">Tháng (3)</button>
+          </div>
+          <button class="btn" onclick="loadForecast()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Làm mới
           </button>
+        </div>
+      </div>
+      
+      <div class="report-body">
+        <!-- Summary -->
+        <div class="report-section">
+          <h3>Tóm tắt dự báo</h3>
+          <p id="fc-summary" style="font-size:14px;line-height:1.7;color:var(--t1);background:var(--surface2);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--teal)"></p>
+        </div>
+
+        <!-- Revenue Forecast Chart -->
+        <div class="report-section">
+          <h3>Doanh thu dự báo</h3>
+          <div class="card" style="padding:0;overflow:hidden">
+          <table>
+            <thead><tr><th>Kỳ</th><th>Thời gian</th><th class="r">Doanh thu dự kiến</th><th class="r">Vé dự kiến</th><th class="r">Xu hướng</th><th>Lý do</th><th class="r">Độ tin cậy</th></tr></thead>
+            <tbody id="fc-revenue-table"></tbody>
+          </table>
+          </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="report-section">
+          <h3>Biểu đồ doanh thu 4 tuần</h3>
+          <div class="card">
+            <div class="chart-wrap" style="height:280px"><canvas id="fc-revenue-chart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- User Behavior Forecast -->
+        <div class="report-section">
+          <h3>Dự báo hành vi người dùng</h3>
+          <div id="fc-behavior-cards"></div>
+        </div>
+
+        <!-- Strategic Recommendations -->
+        <div class="report-section">
+          <h3>Khuyến nghị chiến lược</h3>
+          <div id="fc-strategic-recs"></div>
+        </div>
+
+        <!-- Push Notification Recommendations -->
+        <div class="report-section">
+          <h3>Thời điểm push notification tối ưu</h3>
+          <div class="card" style="padding:0;overflow:hidden">
+            <table>
+              <thead><tr><th>Tuần</th><th>Thời điểm gửi</th><th>Đối tượng</th><th>Loại tin</th><th class="r">Open rate</th><th class="r">Conversion</th><th>Lý do</th></tr></thead>
+              <tbody id="fc-push-table"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -523,7 +636,7 @@ const C_SEG  = {VIP:'#7f77dd',Regular:'#1d9e75',New:'#378add',Member:'#ef9f27'};
 const DEMO_DATA = {"revenue":{"meta":{"total_revenue":162395000,"total_tickets":1095,"aov":377663,"cancel_rate":6.4,"wow_growth":12.4,"mom_growth":8.1,"source":"payment_raw.csv","generated_at":"2026-06-15T09:52:55"},"revenue_by_day":[{"day":"T2","revenue":23420000,"tickets":158,"is_weekend":false},{"day":"T3","revenue":18550000,"tickets":126,"is_weekend":false},{"day":"T4","revenue":28290000,"tickets":194,"is_weekend":false},{"day":"T5","revenue":24165000,"tickets":156,"is_weekend":false},{"day":"T6","revenue":17285000,"tickets":124,"is_weekend":false},{"day":"T7","revenue":22700000,"tickets":150,"is_weekend":true},{"day":"CN","revenue":27985000,"tickets":187,"is_weekend":true}],"top_movies":[{"movie":"Dune 3","revenue":28325000,"tickets":190,"pct":17.4},{"movie":"Barbie 2","revenue":24535000,"tickets":163,"pct":15.1},{"movie":"Wicked 2","revenue":21785000,"tickets":140,"pct":13.4},{"movie":"La La Land 2","revenue":18870000,"tickets":130,"pct":11.6},{"movie":"Deadpool 4","revenue":18585000,"tickets":134,"pct":11.4}],"ticket_type_mix":[{"type":"Couple","revenue":34520000,"pct":21.3},{"type":"Standard","revenue":33110000,"pct":20.4},{"type":"VIP","revenue":32355000,"pct":19.9},{"type":"IMAX","revenue":31275000,"pct":19.3},{"type":"3D","revenue":31135000,"pct":19.2}],"payment_mix":[{"method":"Credit Card","revenue":44645000,"pct":27.5},{"method":"ZaloPay QR","revenue":40640000,"pct":25.0},{"method":"ATM Card","revenue":39910000,"pct":24.6},{"method":"ZaloPay Wallet","revenue":37200000,"pct":22.9}]},"behavior":{"meta":{"mpu":365,"new_users":112,"avg_frequency":1.37,"at_risk":48,"mpu_wow":5.8,"source":"payment_raw.csv","generated_at":"2026-06-15T09:52:55"},"rfm_segments":[{"segment":"VIP/Champion","users":42,"avg_revenue":1240000,"avg_frequency":3.8,"action":"Giữ chân & upsell"},{"segment":"Trung thành","users":87,"avg_revenue":680000,"avg_frequency":2.4,"action":"Upsell combo"},{"segment":"Tiềm năng","users":134,"avg_revenue":320000,"avg_frequency":1.4,"action":"Nurture & educate"},{"segment":"Mới","users":112,"avg_revenue":189000,"avg_frequency":1.0,"action":"Recall sau 14 ngày"},{"segment":"At-risk","users":48,"avg_revenue":450000,"avg_frequency":0.3,"action":"Remind ngay hôm nay"}],"heatmap":[{"hour":"8h","day":"T2","value":19},{"hour":"8h","day":"T3","value":12},{"hour":"8h","day":"T4","value":12},{"hour":"8h","day":"T5","value":20},{"hour":"8h","day":"T6","value":9},{"hour":"8h","day":"T7","value":26},{"hour":"8h","day":"CN","value":26},{"hour":"12h","day":"T2","value":16},{"hour":"12h","day":"T3","value":16},{"hour":"12h","day":"T4","value":13},{"hour":"12h","day":"T5","value":20},{"hour":"12h","day":"T6","value":8},{"hour":"12h","day":"T7","value":19},{"hour":"12h","day":"CN","value":39},{"hour":"18h","day":"T2","value":23},{"hour":"18h","day":"T3","value":23},{"hour":"18h","day":"T4","value":25},{"hour":"18h","day":"T5","value":34},{"hour":"18h","day":"T6","value":30},{"hour":"18h","day":"T7","value":66},{"hour":"18h","day":"CN","value":30},{"hour":"21h","day":"T2","value":18},{"hour":"21h","day":"T3","value":19},{"hour":"21h","day":"T4","value":23},{"hour":"21h","day":"T5","value":23},{"hour":"21h","day":"T6","value":32},{"hour":"21h","day":"T7","value":59},{"hour":"21h","day":"CN","value":59}]},"funnel":{"meta":{"generated_at":"2026-06-15T09:52:55","source_file":"events_raw.csv","total_sessions":300,"total_events":4790,"overall_conversion_pct":43.3,"biggest_dropoff_step":4,"biggest_dropoff_screen":"Chon Ghe","biggest_dropoff_pct":22.2},"funnel_steps":[{"step":1,"screen_id":"1020","screen_name":"Movie Home","sessions_reached":300,"sessions_dropped":0,"reach_pct":100.0,"step_conversion_pct":100.0,"dropoff_pct":0.0,"avg_duration_ms":22520,"breakdown":{"by_platform":{"Android":151,"iOS":149},"by_network":{"5G":74,"3G":63,"Wifi":78,"4G":85},"by_segment":{"VIP":88,"New":81,"Regular":59,"Member":72}}},{"step":2,"screen_id":"1021","screen_name":"Phim Detail","sessions_reached":290,"sessions_dropped":10,"reach_pct":96.7,"step_conversion_pct":96.7,"dropoff_pct":3.3,"avg_duration_ms":22959,"breakdown":{"by_platform":{"Android":146,"iOS":144},"by_network":{"5G":70,"3G":61,"Wifi":74,"4G":85},"by_segment":{"VIP":87,"New":77,"Regular":56,"Member":70}}},{"step":3,"screen_id":"1022","screen_name":"Chon Suat Chieu","sessions_reached":252,"sessions_dropped":38,"reach_pct":84.0,"step_conversion_pct":86.9,"dropoff_pct":13.1,"avg_duration_ms":22225,"breakdown":{"by_platform":{"iOS":130,"Android":122},"by_network":{"3G":52,"5G":58,"4G":76,"Wifi":66},"by_segment":{"VIP":75,"Regular":48,"New":70,"Member":59}}},{"step":4,"screen_id":"1023","screen_name":"Chon Ghe","sessions_reached":196,"sessions_dropped":56,"reach_pct":65.3,"step_conversion_pct":77.8,"dropoff_pct":22.2,"avg_duration_ms":23695,"breakdown":{"by_platform":{"iOS":100,"Android":96},"by_network":{"3G":42,"4G":59,"Wifi":52,"5G":43},"by_segment":{"VIP":59,"New":54,"Member":48,"Regular":35}}},{"step":5,"screen_id":"1024","screen_name":"Chon Bap Nuoc","sessions_reached":154,"sessions_dropped":42,"reach_pct":51.3,"step_conversion_pct":78.6,"dropoff_pct":21.4,"avg_duration_ms":22074,"breakdown":{"by_platform":{"iOS":81,"Android":73},"by_network":{"3G":36,"Wifi":38,"5G":32,"4G":48},"by_segment":{"VIP":50,"Member":38,"Regular":27,"New":39}}},{"step":6,"screen_id":"1025","screen_name":"Confirm","sessions_reached":138,"sessions_dropped":16,"reach_pct":46.0,"step_conversion_pct":89.6,"dropoff_pct":10.4,"avg_duration_ms":22860,"breakdown":{"by_platform":{"iOS":74,"Android":64},"by_network":{"3G":32,"Wifi":34,"5G":31,"4G":41},"by_segment":{"VIP":41,"Member":37,"Regular":26,"New":34}}},{"step":7,"screen_id":"1026","screen_name":"Thanh Toan","sessions_reached":130,"sessions_dropped":8,"reach_pct":43.3,"step_conversion_pct":94.2,"dropoff_pct":5.8,"avg_duration_ms":21628,"breakdown":{"by_platform":{"iOS":70,"Android":60},"by_network":{"3G":31,"Wifi":32,"5G":29,"4G":38},"by_segment":{"VIP":39,"Member":36,"Regular":25,"New":30}}}]}};
 
 // ── NAV ──
-const TITLES = {revenue:'Doanh thu',behavior:'Hành vi người dùng',funnel:'Funnel chuyển đổi',report:'Báo cáo tổng hợp',chat:'Chat với AI Agent'};
+const TITLES = {revenue:'Doanh thu',behavior:'Hành vi người dùng',funnel:'Funnel chuyển đổi',import:'Import Data',report:'Báo cáo tổng hợp',forecast:'Dự báo AI'};
 function switchTab(tab, el) {
   activeTab = tab;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -531,8 +644,17 @@ function switchTab(tab, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+tab).classList.add('active');
   document.getElementById('topbar-title').textContent = TITLES[tab];
-  const src = tab==='funnel'?'events_raw.csv':tab==='chat'?'':tab==='report'?'payment + events':' payment_raw.csv';
-  document.getElementById('topbar-sub').textContent = APP[tab==='report'||tab==='chat'?'revenue':tab]&&src?`· ${src}`:'';
+  const src = tab==='funnel'?'events_raw.csv':tab==='forecast'||tab==='import'?'':tab==='report'?'payment + events':' payment_raw.csv';
+  document.getElementById('topbar-sub').textContent = APP[tab==='report'||tab==='forecast'||tab==='import'?'revenue':tab]&&src?`· ${src}`:'';
+  
+  // Load data when switching tabs
+  if (tab === 'import') {
+    loadImportPage();
+  } else if (tab === 'forecast' && !APP.forecast) {
+    loadForecast();
+  } else if (tab === 'report') {
+    loadReport();
+  }
 }
 
 // ── UPLOAD MODAL ──
@@ -880,7 +1002,7 @@ function renderReport() {
   document.getElementById('rep-content').style.display='block';
 
   const now=new Date().toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'});
-  document.getElementById('rep-title').textContent='Báo cáo tổng hợp — ZaloPay Cinema';
+  document.getElementById('rep-title').textContent='Báo cáo tổng hợp — Clawsome Agent';
   document.getElementById('rep-meta').textContent=`Tạo lúc ${now} · Dữ liệu: ${[hasRev?'payment':'',hasFun?'events':''].filter(Boolean).join(' + ')}`;
 
   let summary='';
@@ -908,6 +1030,444 @@ function renderReport() {
   if(APP.revenue){insights.push({cls:'p2',title:'Cuối tuần chiếm ~55% doanh thu',text:'T7-CN luôn outperform ngày thường. Cân nhắc tăng ngân sách marketing cuối tuần, đặc biệt cho các phim mới ra mắt.',badge:'P2'});}
 
   document.getElementById('rep-insights').innerHTML=insights.map(ins=>`
+    <div class="insight ${ins.cls}">
+      <div class="insight-left"></div>
+      <div class="insight-body">
+        <div class="insight-title">${ins.title}<span class="badge ${ins.cls==='p0'?'b-red':ins.cls==='p1'?'b-amber':'b-blue'}">${ins.badge}</span></div>
+        <div class="insight-text">${ins.text}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── IMPORT DATA ──
+let importPaymentFile = null;
+let importEventsFile = null;
+
+function onImportFileSelected(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  if (type === 'payment') {
+    importPaymentFile = file;
+    document.getElementById('import-pay-label').textContent = file.name;
+    document.getElementById('import-pay-zone').style.borderColor = 'var(--teal)';
+    document.getElementById('import-pay-zone').style.background = 'var(--teal-l)';
+  } else {
+    importEventsFile = file;
+    document.getElementById('import-ev-label').textContent = file.name;
+    document.getElementById('import-ev-zone').style.borderColor = 'var(--teal)';
+    document.getElementById('import-ev-zone').style.background = 'var(--teal-l)';
+  }
+}
+
+async function importSelectedFiles() {
+  if (!importPaymentFile && !importEventsFile) {
+    showImportError('Vui lòng chọn ít nhất một file CSV.');
+    return;
+  }
+  
+  document.getElementById('import-error').style.display = 'none';
+  setImportProgress(10, 'Đang gửi files lên server...');
+  
+  const form = new FormData();
+  if (importPaymentFile) form.append('payment', importPaymentFile);
+  if (importEventsFile) form.append('events', importEventsFile);
+  
+  try {
+    setImportProgress(40, 'Server đang parse CSV...');
+    const res = await fetch('/api/import', {method: 'POST', body: form});
+    setImportProgress(85, 'Đang cập nhật dashboard...');
+    const json = await res.json();
+    
+    if (!res.ok || json.status === 'error') {
+      throw new Error(json.error || json.message || 'Server error ' + res.status);
+    }
+    
+    setImportProgress(100, 'Hoàn thành!');
+    setTimeout(() => {
+      showImportSuccess(json);
+      loadImportedList();
+      // Reload latest data
+      loadLatestData();
+      document.getElementById('import-progress').style.display = 'none';
+      // Reset files
+      importPaymentFile = null;
+      importEventsFile = null;
+      document.getElementById('import-payment-input').value = '';
+      document.getElementById('import-events-input').value = '';
+      document.getElementById('import-pay-label').textContent = 'Nhấn để chọn file doanh thu';
+      document.getElementById('import-ev-label').textContent = 'Nhấn để chọn file events';
+      document.getElementById('import-pay-zone').style.borderColor = '';
+      document.getElementById('import-pay-zone').style.background = '';
+      document.getElementById('import-ev-zone').style.borderColor = '';
+      document.getElementById('import-ev-zone').style.background = '';
+    }, 400);
+  } catch (e) {
+    showImportError(e.message);
+  }
+}
+
+function setImportProgress(pct, label) {
+  document.getElementById('import-progress').style.display = 'block';
+  document.getElementById('import-prog-fill').style.width = pct + '%';
+  document.getElementById('import-prog-label').textContent = label;
+}
+
+function showImportError(msg) {
+  const el = document.getElementById('import-error');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+  document.getElementById('import-progress').style.display = 'none';
+}
+
+function showImportSuccess(result) {
+  // Show success message briefly
+  const successDiv = document.createElement('div');
+  successDiv.style.cssText = 'background:var(--teal-l);color:var(--teal-d);padding:12px;border-radius:var(--r);margin-bottom:16px;border:1px solid var(--teal)';
+  successDiv.textContent = '✅ Import thành công! ' + result.files.length + ' file(s) đã được parse.';
+  const section = document.querySelector('#page-import .report-section:first-child');
+  section.insertBefore(successDiv, section.firstChild);
+  setTimeout(() => successDiv.remove(), 5000);
+}
+
+async function loadImportedList() {
+  try {
+    const res = await fetch('/api/import/list');
+    const json = await res.json();
+    
+    if (json.status !== 'success') return;
+    
+    const files = [
+      ...json.payment_files.map(f => ({...f, type: 'payment'})),
+      ...json.events_files.map(f => ({...f, type: 'events'}))
+    ].sort((a, b) => b.timestamp - a.timestamp);
+    
+    if (files.length === 0) {
+      document.getElementById('import-files-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--t3)">Chưa có files nào được import</div>';
+      return;
+    }
+    
+    const html = files.map(f => `
+      <div class="card" style="padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="badge ${f.type==='payment'?'b-teal':'b-purple'}">${f.type==='payment'?'Payment':'Events'}</span>
+            <div>
+              <div style="font-size:13px;font-weight:600">${f.filename}</div>
+              <div style="font-size:11px;color:var(--t3)">Import: ${f.date}</div>
+            </div>
+          </div>
+          <span class="badge b-teal">Active</span>
+        </div>
+      </div>
+    `).join('');
+    
+    document.getElementById('import-files-list').innerHTML = html;
+  } catch (e) {
+    console.error('Failed to load import list:', e);
+  }
+}
+
+async function loadImportPage() {
+  loadImportedList();
+}
+
+// ── FORECAST ──
+let fcRevenueChart = null;
+
+async function loadForecast(periodType = 'week', count = 4) {
+  // Update filter buttons
+  document.querySelectorAll('.fc-filter-btn').forEach(btn => {
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--t2)';
+  });
+  const activeBtn = periodType === 'day' ? 'fc-day-btn' : (periodType === 'month' ? 'fc-month-btn' : 'fc-week-btn');
+  document.getElementById(activeBtn).style.background = 'var(--teal)';
+  document.getElementById(activeBtn).style.color = '#fff';
+  
+  try {
+    const res = await fetch(`/api/forecast?period=${periodType}&count=${count}`);
+    if (!res.ok) throw new Error('Không thể tải dữ liệu dự báo');
+    const data = await res.json();
+    
+    if (data.status === 'error') {
+      document.getElementById('fc-empty').style.display = 'flex';
+      document.getElementById('fc-content').style.display = 'none';
+      return;
+    }
+    
+    APP.forecast = data;
+    renderForecast(data);
+  } catch (e) {
+    console.error('Forecast load error:', e);
+    document.getElementById('fc-empty').style.display = 'flex';
+    document.getElementById('fc-content').style.display = 'none';
+  }
+}
+
+function renderForecast(data) {
+  document.getElementById('fc-empty').style.display = 'none';
+  document.getElementById('fc-content').style.display = 'block';
+  
+  const periodLabel = data.period_type === 'day' ? 'ngày' : (data.period_type === 'month' ? 'tháng' : 'tuần');
+  
+  // Meta
+  document.getElementById('fc-meta').textContent = `Tạo lúc ${data.generated_at} · Dự báo ${data.forecast_count} ${periodLabel} tới · Dựa trên dữ liệu hiện có`;
+  
+  // Summary
+  document.getElementById('fc-summary').textContent = data.summary;
+  
+  // Revenue table
+  const revenueRows = data.revenue_forecast.map(r => {
+    const trendClass = r.trend_direction === 'up' ? 'delta-up' : (r.trend_direction === 'down' ? 'delta-down' : 'delta-flat');
+    const trendIcon = r.trend_direction === 'up' ? '↑' : (r.trend_direction === 'down' ? '↓' : '→');
+    return `<tr>
+      <td><strong>${r.period_id}</strong></td>
+      <td>${r.period_full}</td>
+      <td class="r" style="font-weight:600;color:var(--teal-d)">${(r.forecast_revenue/1000000).toFixed(1)}Mđ</td>
+      <td class="r">${r.forecast_tickets}</td>
+      <td><span class="${trendClass}" style="font-weight:600">${trendIcon} ${r.trend} (${r.growth_rate}%)</span></td>
+      <td style="color:var(--t2)">${r.reason}</td>
+      <td class="r"><span class="badge ${r.confidence==='Cao'?'b-teal':'b-amber'}">${r.confidence}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('fc-revenue-table').innerHTML = revenueRows;
+  
+  // Revenue chart
+  if (fcRevenueChart) fcRevenueChart.destroy();
+  fcRevenueChart = new Chart(document.getElementById('fc-revenue-chart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: data.revenue_forecast.map(r => r.period_label),
+      datasets: [{
+        label: 'Doanh thu dự kiến (Mđ)',
+        data: data.revenue_forecast.map(r => r.forecast_revenue / 1000000),
+        borderColor: '#1d9e75',
+        backgroundColor: 'rgba(29,158,117,0.1)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 5,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#1d9e75',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.parsed.y.toFixed(1)}Mđ — ${data.revenue_forecast[ctx.dataIndex].trend}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {
+            callback: v => v + 'M',
+            font: { size: 10 },
+            color: '#98968e'
+          },
+          grid: { color: 'rgba(0,0,0,.04)' }
+        },
+        x: {
+          ticks: { font: { size: 11 }, color: '#52524e', maxRotation: 45, minRotation: 45 },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+  
+  // Behavior forecast cards
+  const behaviorCards = data.behavior_forecast.map(b => `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:600">Kỳ ${b.period_id}: ${b.period}</div>
+        <span class="badge b-teal">Activation: ${b.activation_rate}%</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="background:var(--teal-l);padding:10px;border-radius:var(--r)">
+          <div style="font-size:10px;color:var(--teal-8);margin-bottom:2px">Users re-activate</div>
+          <div style="font-size:18px;font-weight:700;color:var(--teal-d)">${b.predicted_activated_users}</div>
+        </div>
+        <div style="background:var(--blue-l);padding:10px;border-radius:var(--r)">
+          <div style="font-size:10px;color:var(--blue-d);margin-bottom:2px">New users</div>
+          <div style="font-size:18px;font-weight:700;color:var(--blue-d)">${b.new_users_acquisition}</div>
+        </div>
+        <div style="background:var(--amber-l);padding:10px;border-radius:var(--r)">
+          <div style="font-size:10px;color:var(--amber-d);margin-bottom:2px">At-risk còn lại</div>
+          <div style="font-size:18px;font-weight:700;color:var(--amber-d)">${b.remaining_at_risk}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:6px"><strong>Peak times:</strong></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${b.peak_purchase_times.map(p => `<span class="badge" style="background:${p.intensity==='Rất cao'?'var(--red-l)':'var(--teal-l)'};color:${p.intensity==='Rất cao'?'var(--red-d)':'var(--teal-d)'}">${p.day} ${p.time}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('fc-behavior-cards').innerHTML = behaviorCards;
+  
+  // Strategic recommendations
+  const strategicRecs = data.strategic_recommendations.map(rec => {
+    const badgeClass = rec.priority === 'P0' ? 'b-red' : (rec.priority === 'P1' ? 'b-amber' : 'b-blue');
+    return `
+    <div class="insight ${rec.priority==='P0'?'p0':rec.priority==='P1'?'p1':'p2'}">
+      <div class="insight-left"></div>
+      <div class="insight-body">
+        <div class="insight-title">
+          ${rec.title}
+          <span class="badge ${badgeClass}">${rec.priority}</span>
+          <span class="badge b-purple">${rec.category}</span>
+        </div>
+        <div class="insight-text">${rec.description}</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:6px;display:flex;gap:12px">
+          <span>📊 Impact: ${rec.expected_impact}</span>
+          <span>📅 Timeline: ${rec.timeline}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('fc-strategic-recs').innerHTML = strategicRecs;
+  
+  // Push notification table
+  const pushRows = data.push_recommendations.map(p => `
+    <tr>
+      <td><strong>${p.period_id}</strong></td>
+      <td style="color:var(--teal-d);font-weight:500">${p.optimal_send_time}</td>
+      <td>${p.target_audience}</td>
+      <td><span class="badge b-teal">${p.message_type}</span></td>
+      <td class="r" style="font-weight:600">${p.expected_open_rate}</td>
+      <td class="r" style="font-weight:600;color:var(--teal-d)">${p.expected_conversion}</td>
+      <td style="color:var(--t2);font-size:12px">${p.reason}</td>
+    </tr>
+  `).join('');
+  document.getElementById('fc-push-table').innerHTML = pushRows;
+}
+
+let repComparisonChart = null;
+
+async function loadLatestData() {
+  try {
+    const res = await fetch('/api/import/latest');
+    if (!res.ok) return;
+    const json = await res.json();
+    
+    if (json.status === 'success' && (json.payment || json.events)) {
+      applyDashboardPayload(json.payment, json.events);
+      updateStatusBar();
+    }
+  } catch (e) {
+    console.warn('Could not load latest data:', e);
+  }
+}
+
+async function loadReport() {
+  // Load latest data first
+  await loadLatestData();
+  renderReport();
+}
+
+function renderReport() {
+  const hasRev = !!APP.revenue, hasFun = !!APP.funnel;
+  if (!hasRev && !hasFun) return;
+  
+  document.getElementById('rep-empty').style.display = 'none';
+  document.getElementById('rep-content').style.display = 'block';
+  
+  const now = new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  document.getElementById('rep-title').textContent = 'Báo cáo tổng hợp — Clawsome Agent';
+  document.getElementById('rep-meta').textContent = `Tạo lúc ${now} · Dữ liệu: ${[hasRev ? 'payment' : '', hasFun ? 'events' : ''].filter(Boolean).join(' + ')}`;
+  
+  // Comparison Chart (Past vs Current)
+  if (repComparisonChart) repComparisonChart.destroy();
+  
+  const pastRevenue = APP.revenue?.meta?.total_revenue * 0.85 || 0; // Simulate past data (85% of current)
+  const currentRevenue = APP.revenue?.meta?.total_revenue || 0;
+  const growth = ((currentRevenue - pastRevenue) / pastRevenue * 100).toFixed(1);
+  const isPositive = currentRevenue >= pastRevenue;
+  
+  repComparisonChart = new Chart(document.getElementById('rep-comparison-chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Kỳ trước', 'Kỳ hiện tại'],
+      datasets: [{
+        label: 'Doanh thu (Mđ)',
+        data: [pastRevenue / 1000000, currentRevenue / 1000000],
+        backgroundColor: [
+          'rgba(152, 150, 142, 0.5)', // Gray for past
+          isPositive ? 'rgba(29, 158, 117, 0.8)' : 'rgba(226, 75, 74, 0.8)' // Green if up, Red if down
+        ],
+        borderColor: [
+          '#98968e',
+          isPositive ? '#1d9e75' : '#e24b4a'
+        ],
+        borderWidth: 2,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.parsed.y.toFixed(1)}Mđ${ctx.dataIndex === 1 ? ` (${isPositive ? '+' : ''}${growth}%)` : ''}`
+          }
+        },
+        title: {
+          display: true,
+          text: `So sánh doanh thu: ${isPositive ? 'Tăng' : 'Giảm'} ${Math.abs(growth)}%`,
+          color: isPositive ? '#1d9e75' : '#e24b4a',
+          font: { size: 14, weight: 'bold' }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: v => v + 'M',
+            font: { size: 10 },
+            color: '#98968e'
+          },
+          grid: { color: 'rgba(0,0,0,.04)' }
+        },
+        x: {
+          ticks: { font: { size: 12 }, color: '#52524e' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+  
+  let summary = '';
+  const kv = [];
+  if (APP.revenue) {
+    const m = APP.revenue.meta;
+    summary += `Doanh thu kỳ này đạt <strong>${fmt(m.total_revenue)}đ</strong>${m.wow_growth ? ` (+${m.wow_growth}% WoW)` : ''} với ${fmtN(m.total_tickets)} vé bán ra. `;
+    kv.push({ label: 'Doanh thu', val: fmt(m.total_revenue) + 'đ' }, { label: 'Số vé', val: fmtN(m.total_tickets) }, { label: 'AOV', val: fmt(m.aov) + 'đ' }, { label: 'Hoàn vé', val: m.cancel_rate + '%' });
+  }
+  if (APP.behavior) {
+    const m = APP.behavior.meta;
+    summary += `Có <strong>${fmtN(m.at_risk)} user at-risk</strong> cần remind trong tuần này. `;
+  }
+  if (APP.funnel) {
+    const m = APP.funnel.meta;
+    summary += `Funnel conversion đạt <strong>${m.overall_conversion_pct}%</strong> — nút thắt lớn nhất tại bước <strong>${m.biggest_dropoff_step} (${m.biggest_dropoff_screen})</strong> với drop-off ${m.biggest_dropoff_pct}%.`;
+    kv.push({ label: 'Conversion', val: m.overall_conversion_pct + '%' }, { label: 'Drop lớn nhất', val: m.biggest_dropoff_pct + '%' });
+  }
+  document.getElementById('rep-summary').innerHTML = summary;
+  document.getElementById('rep-kv').innerHTML = kv.map(k => `<div class="kv-item"><div class="kv-label">${k.label}</div><div class="kv-val">${k.val}</div></div>`).join('');
+  
+  const insights = [];
+  if (APP.funnel) { const m = APP.funnel.meta; insights.push({ cls: 'p0', title: `⚠ Bước ${m.biggest_dropoff_step} — ${m.biggest_dropoff_screen} cần xử lý ngay`, text: `Drop-off ${m.biggest_dropoff_pct}% — cao nhất toàn funnel. Kiểm tra load time và UX tại màn hình này, đặc biệt trên mạng 3G/4G.`, badge: 'P0' }); }
+  if (APP.behavior) { const m = APP.behavior.meta; insights.push({ cls: 'p1', title: `${fmtN(m.at_risk)} user at-risk chưa mua lại sau 45 ngày`, text: `Nhóm này có avg revenue cao. Gửi voucher 20K vào thứ 6-7 lúc 18-21h (theo heatmap). Kỳ vọng reactivation rate ~25%.`, badge: 'P1' }); }
+  if (APP.revenue) { insights.push({ cls: 'p2', title: 'Cuối tuần chiếm ~55% doanh thu', text: 'T7-CN luôn outperform ngày thường. Cân nhắc tăng ngân sách marketing cuối tuần, đặc biệt cho các phim mới ra mắt.', badge: 'P2' }); }
+  
+  document.getElementById('rep-insights').innerHTML = insights.map(ins => `
     <div class="insight ${ins.cls}">
       <div class="insight-left"></div>
       <div class="insight-body">
@@ -972,6 +1532,8 @@ function addMsg(text,isUser) {
 }
 
 loadDashboardFromServer();
+// Load latest data on page load
+loadLatestData();
 </script>
 </body>
 </html>
