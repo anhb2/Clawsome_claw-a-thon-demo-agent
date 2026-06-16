@@ -218,17 +218,29 @@ CHỈ TRẢ VỀ JSON THUẦN, KHÔNG CÓ TEXT KHÁC."""
         if not self.client:
             raise Exception("LLM client not initialized")
         
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": "Bạn là AI analyst chuyên nghiệp. Chỉ trả về JSON thuần, không có markdown hay text khác."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=4000
-        )
-        
-        return response.choices[0].message.content
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=8000,
+                reasoning_effort="low"
+            )
+            
+            # Get content or reasoning (some models return reasoning instead)
+            content = response.choices[0].message.content
+            if not content:
+                content = response.choices[0].message.reasoning
+            
+            result = content or ""
+            print(f"✅ LLM call successful. Tokens: {response.usage.completion_tokens}, Content length: {len(result)}")
+            return result
+            
+        except Exception as e:
+            print(f"❌ LLM call failed: {str(e)}")
+            raise
     
     def _parse_llm_response(self, response: str, period_type: str, count: int) -> Dict[str, Any]:
         """Parse and validate the LLM response."""

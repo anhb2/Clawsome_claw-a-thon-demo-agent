@@ -7,7 +7,7 @@ from datetime import datetime
 
 from starlette.responses import JSONResponse
 
-from app.services.ai_forecast import AIForecastService
+from app.services.simple_ai_forecast import SimpleAIForecastService
 from app.services.forecast import ForecastService
 
 
@@ -45,11 +45,11 @@ async def get_forecast(request) -> JSONResponse:
             with open(latest_event, "r", encoding="utf-8") as f:
                 events_data = json.load(f)
         
-        # Generate AI forecast using GreenNode MAAS LLM
-        ai_forecast_service = AIForecastService()
-        forecast_result = ai_forecast_service.generate_ai_forecast(
-            payment_data, events_data, 
-            period_type=period_type, 
+        # Generate AI forecast using SimpleAIForecastService
+        ai_service = SimpleAIForecastService()
+        forecast_result = ai_service.generate_forecast(
+            payment_data, events_data,
+            period_type=period_type,
             count=count
         )
         
