@@ -412,10 +412,6 @@ td.r{text-align:right}
           <div class="report-kv" id="rep-kv"></div>
         </div>
         <div class="report-section">
-          <h3>So sánh doanh thu</h3>
-          <div class="chart-wrap" style="height:280px"><canvas id="rep-comparison-chart"></canvas></div>
-        </div>
-        <div class="report-section">
           <h3>AI Insight & Khuyến nghị</h3>
           <div id="rep-insights"></div>
         </div>
@@ -679,14 +675,81 @@ function switchTab(tab, el) {
   // Load data when switching tabs
   if (tab === 'import') {
     loadImportPage();
-  } else if (tab === 'forecast') {
-    console.log('Loading forecast...');
+  } else if (tab === 'forecast' && !APP.forecast) {
     loadForecast();
   } else if (tab === 'report') {
     loadReport();
   }
 }
 
+// ── UPLOAD MODAL ──
+function openUpload(type) {
+  document.getElementById('upload-overlay').classList.add('open');
+  if (type) selectCsvType(type);
+  document.getElementById('upload-error').style.display='none';
+  document.getElementById('upload-progress').style.display='none';
+}
+function closeUpload() { document.getElementById('upload-overlay').classList.remove('open'); }
+function closeUploadIfBg(e) { if(e.target===document.getElementById('upload-overlay')) closeUpload(); }
+
+function selectCsvType(type) {
+  selectedCsvType = type;
+  document.getElementById('type-payment').classList.toggle('active-type', type==='payment');
+  document.getElementById('type-events').classList.toggle('active-type', type==='events');
+  const isEv = type==='events';
+  document.getElementById('drop-title').textContent = isEv ? 'Upload events_raw.csv' : 'Upload payment_raw.csv';
+  document.getElementById('drop-sub').textContent = isEv ? 'events_raw.csv — event tracking 14 cột' : 'payment_raw.csv — giao dịch 17 cột';
+}
+
+// drag-drop removed — dual file inputs
+document.getElementById('payment-file-input').addEventListener('change', e=>{
+  const f=e.target.files[0];
+  document.getElementById('payment-file-label').textContent=f?f.name:'Doanh thu + hành vi user — nhấn để chọn';
+});
+document.getElementById('events-file-input').addEventListener('change', e=>{
+  const f=e.target.files[0];
+  document.getElementById('events-file-label').textContent=f?f.name:'Funnel tracking — nhấn để chọn';
+});
+
+function setProgress(pct, label) {
+  document.getElementById('upload-progress').style.display='block';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=label;
+}
+function showUploadError(msg) {
+  const el=document.getElementById('upload-error');
+  el.textContent='⚠ '+msg; el.style.display='block';
+  document.getElementById('upload-progress').style.display='none';
+}
+
+async function uploadSelectedFiles() {
+  const payFile = document.getElementById('payment-file-input').files[0];
+  const evFile = document.getElementById('events-file-input').files[0];
+  if (!payFile && !evFile) return showUploadError('Chọn ít nhất một file CSV.');
+
+  document.getElementById('upload-error').style.display='none';
+  setProgress(10,'Đang gửi file lên server...');
+
+  const form = new FormData();
+  if (payFile) form.append('payment', payFile);
+  if (evFile) form.append('events', evFile);
+
+  try {
+    setProgress(40, 'Server đang parse CSV...');
+    const res = await fetch('/api/upload', {method:'POST', body:form});
+    setProgress(85, 'Đang cập nhật dashboard...');
+    const json = await res.json();
+    if (!res.ok || json.status === 'error') throw new Error(json.error || 'Server error '+res.status);
+    setProgress(100,'Hoàn thành!');
+    setTimeout(()=>{
+      applyDashboardPayload(json.payment, json.events);
+      closeUpload();
+      document.getElementById('upload-progress').style.display='none';
+    },400);
+  } catch(e) {
+    showUploadError(e.message);
+  }
+}
 
 function applyDashboardPayload(payment, events) {
   if (payment) {
@@ -1043,23 +1106,11 @@ async function importSelectedFiles() {
     }
     
     setImportProgress(100, 'Hoàn thành!');
-    setTimeout(async () => {
+    setTimeout(() => {
       showImportSuccess(json);
       loadImportedList();
-      // Reload latest data and update ALL tabs
-      await loadLatestData();
-      // Force refresh all tabs with new data
-      if (APP.revenue) {
-        renderRevenue();
-        if (APP.behavior) renderBehavior();
-      }
-      if (APP.funnel) renderFunnel();
-      renderReport();
-      // Auto-load forecast with new data (show loading animation)
-      const currentTab = document.querySelector('.tab.active')?.id;
-      if (currentTab === 'tab-forecast') {
-        loadForecast();
-      }
+      // Reload latest data
+      loadLatestData();
       document.getElementById('import-progress').style.display = 'none';
       // Reset files
       importPaymentFile = null;

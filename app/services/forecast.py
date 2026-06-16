@@ -56,7 +56,7 @@ class ForecastService:
             revenue_forecast = self._forecast_revenue(forecast_periods, total_revenue, aov, total_tickets, period_type)
             
             # Generate user behavior forecast
-            behavior_forecast = self._forecast_user_behavior(forecast_periods, mpu, at_risk, period_type)
+            behavior_forecast = self._forecast_user_behavior(forecast_periods, mpu, at_risk_users, period_type)
             
             # Generate strategic recommendations
             strategic_recommendations = self._generate_strategic_recommendations(
