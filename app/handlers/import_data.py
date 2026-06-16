@@ -60,14 +60,10 @@ async def import_data(request: Request) -> JSONResponse:
                 with open(raw_path, "w", encoding="utf-8") as f:
                     f.write(content_str)
                 
-                # Parse and process
-                payment_data = parse_payment_csv(content_str)
-                
-                # Save processed JSON with timestamp
+                # Parse and process (parser expects Path objects)
                 processed_filename = f"payment_{timestamp}.json"
                 processed_path = processed_dir / processed_filename
-                with open(processed_path, "w", encoding="utf-8") as f:
-                    json.dump(payment_data, f, ensure_ascii=False, indent=2)
+                payment_data = parse_payment_csv(raw_path, processed_path)
                 
                 # Also save as latest (for backward compatibility)
                 latest_path = processed_dir / "payment_dashboard.json"
@@ -102,14 +98,10 @@ async def import_data(request: Request) -> JSONResponse:
                 with open(raw_path, "w", encoding="utf-8") as f:
                     f.write(content_str)
                 
-                # Parse and process
-                events_data = parse_event_csv(content_str)
-                
-                # Save processed JSON with timestamp
+                # Parse and process (parser expects Path objects)
                 processed_filename = f"event_{timestamp}.json"
                 processed_path = processed_dir / processed_filename
-                with open(processed_path, "w", encoding="utf-8") as f:
-                    json.dump(events_data, f, ensure_ascii=False, indent=2)
+                events_data = parse_event_csv(raw_path, processed_path)
                 
                 # Also save as latest (for backward compatibility)
                 latest_path = processed_dir / "event_dashboard.json"
