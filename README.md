@@ -1,6 +1,41 @@
-# clawsome-demo-agent
+# Clawsome Agent
 
-A GreenNode AgentBase agent.
+AI agent tự động hóa phân tích sức khỏe sản phẩm và tình hình kinh doanh — chạy trên [GreenNode AgentBase](https://aiplatform.console.vngcloud.vn).
+
+## Vấn đề
+
+Product Owner và Business team phải tổng hợp dữ liệu từ nhiều nguồn để monitor sức khỏe sản phẩm và tình hình kinh doanh, đồng thời viết báo cáo định kỳ và tìm kiếm nguyên nhân biến động. Công việc này đang khá thủ công và tốn thời gian: mỗi lần báo cáo tốn **4–8 giờ/tuần** chỉ để thu thập, làm sạch số liệu và vẽ biểu đồ. Áp lực deadline khiến phân tích dừng ở mức "số lên/xuống" thay vì trả lời **tại sao** và **nên làm gì tiếp theo**.
+
+## Người dùng mục tiêu
+
+| Đối tượng | Nhu cầu |
+|-----------|---------|
+| **Product Owner** | Nắm sức khỏe sản phẩm và hành vi người dùng để định hướng action cho team |
+| **Business team** | Theo dõi doanh thu và hiệu quả vận hành để ra quyết định kịp thời |
+
+Cả hai cần thông tin chính xác, nhanh, không muốn tốn thời gian xử lý thủ công.
+
+## Cách agent giải quyết
+
+Agent nhận đầu vào là dữ liệu **payment** và **event tracking** thô, sau đó tự động chạy pipeline:
+
+1. Làm sạch dữ liệu
+2. Tính chỉ số cốt lõi
+3. So sánh với kỳ trước
+4. Phân tích nguyên nhân biến động theo nhiều chiều
+5. Phân khúc người dùng (RFM, cohort)
+6. Dự đoán xu hướng kỳ tới
+
+**Output** là báo cáo có cấu trúc gồm bảng chỉ số, phân tích hành vi, doanh thu, funnel và khuyến nghị action theo độ ưu tiên — hiển thị trên dashboard web hoặc trả lời qua chat.
+
+## Giá trị
+
+- Tiết kiệm **4–8 giờ/tuần** xử lý data thủ công cho PO và Biz team
+- Loại bỏ sai sót và không bỏ sót tín hiệu bất thường
+- PO nắm sức khỏe sản phẩm để xử lý issue, bug; Biz nắm doanh thu để ra quyết định
+- Tất cả từ **một báo cáo duy nhất**, sẵn sàng ngay khi team cần
+
+---
 
 ## Prerequisites
 
@@ -65,18 +100,6 @@ Health check:
 curl http://127.0.0.1:8080/health
 ```
 
-## Deploy to AgentBase Runtime
-
-1. Build and push your Docker image (or use `/agentbase-deploy` skill)
-2. Create a Runtime at https://aiplatform.console.vngcloud.vn/agent-runtime?tab=runtime
-3. Create an Endpoint pointing to your Runtime
-
-See the [AgentBase Console](https://aiplatform.console.vngcloud.vn) to manage runtimes, identities, and memory.
-
-## Add Conversation Memory (Optional)
-
-When you need conversation history or long-term memory, use `/agentbase-memory` to set up AgentBase Memory and integrate it with your agent.
-
 ## Project Structure
 
 ```
@@ -100,13 +123,6 @@ data/
   processed/                     # Parser output JSON
 ```
 
-### Run parsers manually
-
-```bash
-python -m app.parsers.payment_parser
-python -m app.parsers.event_parser
-```
-
 ### Dashboard
 
-Open `http://127.0.0.1:8080/` after `python main.py`. Upload CSVs via UI or place them in `data/raw/`.
+Open `http://127.0.0.1:8080/` after `python3 main.py`. Upload CSVs via UI.
